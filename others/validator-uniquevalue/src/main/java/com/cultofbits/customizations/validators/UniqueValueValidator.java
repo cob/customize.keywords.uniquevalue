@@ -48,7 +48,7 @@ public class UniqueValueValidator implements OnCreateValidator, OnUpdateValidato
             if (instanceField.fieldDefinition.containsExtension(KEYWORD)) {
                 List<Integer> matchingInstances = instanceRepository.getInstanceIdsWithFieldsMatching(
                         Collections.singletonList(instanceField.fieldDefinition.id),
-                        instanceField.getValue(),
+                        instanceField.getValue().trim(),
                         0, 2);
 
                 if (!matchingInstances.isEmpty()) {
