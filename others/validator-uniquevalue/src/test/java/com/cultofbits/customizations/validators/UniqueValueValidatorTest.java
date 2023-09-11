@@ -13,8 +13,10 @@ import org.mockito.MockitoAnnotations;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import java.util.Arrays;
 import java.util.Collections;
 
+import static java.util.Collections.singletonList;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.eq;
@@ -69,7 +71,7 @@ public class UniqueValueValidatorTest {
                 .build();
 
         when(instanceRepository.getInstanceIdsWithFieldsMatching(anyList(), eq("Robot"), eq(0), eq(2)))
-                .thenReturn(Collections.singletonList(1));
+                .thenReturn(singletonList(1));
 
         assertFalse(validator.validateInstanceFields(instance.getFields()).isEmpty());
     }
@@ -88,7 +90,7 @@ public class UniqueValueValidatorTest {
                 .build();
 
         when(instanceRepository.getInstanceIdsWithFieldsMatching(anyList(), eq("Robot"), eq(0), eq(2)))
-                .thenReturn(Collections.singletonList(2));
+                .thenReturn(singletonList(2));
 
         assertTrue(validator.validateInstanceFields(instance.getFields()).isEmpty());
     }
@@ -107,7 +109,34 @@ public class UniqueValueValidatorTest {
                 .build();
 
         when(instanceRepository.getInstanceIdsWithFieldsMatching(anyList(), eq("Robot"), eq(0), eq(2)))
-                .thenReturn(Collections.singletonList(2));
+                .thenReturn(singletonList(2));
+
+        assertFalse(validator.validateInstanceFields(instance.getFields()).isEmpty());
+    }
+
+    @Test
+    public void updating_instances_with_uniquevalue_in_children() {
+
+        FieldDefinition idCardField = FieldDefinitionBuilder.aFieldDefinition().name("ID Number").description("$uniqueValue").build();
+        FieldDefinition nameField = FieldDefinitionBuilder.aFieldDefinition().name("Name").build();
+
+        FieldDefinition parentField = FieldDefinitionBuilder.aFieldDefinition().name("ID Card")
+                .description("$[Yes,No]")
+                .childFields(idCardField, nameField)
+                .build();
+
+        Definition definition = DefinitionBuilder.aDefinition()
+                .fieldDefinitions(parentField, idCardField, nameField)
+                .build();
+
+        Instance instance = InstanceBuilder.anInstance(definition)
+                .id(3)
+                .fieldValue("ID Card", "Yes")
+                .fieldValue("ID Number", "111111111")
+                .build();
+
+        when(instanceRepository.getInstanceIdsWithFieldsMatching(eq(singletonList(idCardField.id)), eq("111111111"), eq(0), eq(2)))
+                .thenReturn(singletonList(2));
 
         assertFalse(validator.validateInstanceFields(instance.getFields()).isEmpty());
     }

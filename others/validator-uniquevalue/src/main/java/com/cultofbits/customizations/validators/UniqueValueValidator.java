@@ -41,7 +41,8 @@ public class UniqueValueValidator implements OnCreateValidator, OnUpdateValidato
         List<ValidationError> errors = new ArrayList<>();
 
         for (InstanceField instanceField : instanceFields) {
-            if (!instanceField.isVisible() || instanceField.getValue() == null) {
+            if ((!instanceField.isVisible() || instanceField.getValue() == null)
+                    && instanceField.children.isEmpty()) {
                 continue;
             }
 
