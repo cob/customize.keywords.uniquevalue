@@ -13,17 +13,15 @@ import org.mockito.MockitoAnnotations;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import java.util.Arrays;
 import java.util.Collections;
 
 import static java.util.Collections.singletonList;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
-import static org.testng.AssertJUnit.assertEquals;
 
 public class UniqueValueValidatorTest {
 
@@ -139,5 +137,24 @@ public class UniqueValueValidatorTest {
                 .thenReturn(singletonList(2));
 
         assertFalse(validator.validateInstanceFields(instance.getFields()).isEmpty());
+    }
+
+    @Test
+    public void error_msg_contains_link_to_query() {
+
+        FieldDefinition idCardField = FieldDefinitionBuilder.aFieldDefinition().name("ID Number").description("$uniqueValue").build();
+
+        Instance instance = InstanceBuilder.anInstance(
+                        DefinitionBuilder.aDefinition()
+                                .fieldDefinitions(idCardField)
+                                .build())
+                .build();
+
+        InstanceField instanceField = instance.getFields(idCardField).get(0);
+        instanceField.setValue("111111111");
+
+        String errorMsg = validator.getErrorMsg(instanceField);
+        assertEquals(errorMsg,
+                "This field must be unique. <a href='/recordm/index.html#/definitions/" + instance.definition.id + "/q=id_number.raw:\"111111111\"' target=\"_blank\">[show]</a>");
     }
 }
