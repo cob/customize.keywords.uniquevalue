@@ -1,5 +1,8 @@
 # customize.keyword.uniqueValue
 
+## Deprecated
+This customization is deprecated.This is now supported in https://github.com/cob/customize.keywords.common-validators
+
 ## Install
 
 ```bash
